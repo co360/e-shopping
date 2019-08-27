@@ -12,11 +12,10 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "order_product")
+@Table(name = "product_item")
 public class OrderProduct extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
-//    @JsonBackReference(value = "product-orderProducts")
     private Product product;
 
     @ManyToOne

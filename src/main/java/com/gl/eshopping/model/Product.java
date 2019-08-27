@@ -15,10 +15,19 @@ public class Product extends BaseEntity {
     private String name;
 
     @Column
+    private String brand;
+
+    @Column
+    private String description;
+
+    @Column
     private Double price;
 
     @ManyToOne
-    @JoinColumn(name = "shop_id")
+    @JoinColumn(name = "product_id")
     @JsonBackReference(value = "shop-products")
     private Shop shop;
+
+    public Product() {
+    }
 }

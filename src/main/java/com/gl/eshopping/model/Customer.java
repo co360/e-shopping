@@ -17,6 +17,6 @@ import java.util.Set;
 @Table(name = "customer")
 public class Customer extends GeneralDetails {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-    @JsonManagedReference(value = "customer-orders")
+    @JsonManagedReference(value = "user-orders")
     private Set<Order> orders = new HashSet<>();
 }
