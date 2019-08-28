@@ -24,6 +24,10 @@ public class ProductController {
     }
 
 
+    /**
+     * Getting All Products
+     * @return all available products
+     */
     @GetMapping(value ={ " ","/","/products","/home"})
     public ResponseEntity<List<Product>> getAllProducts() {
         log.debug("Getting All Products.");
@@ -31,6 +35,11 @@ public class ProductController {
     }
 
 
+    /**
+     * Getting Product By Id
+     * @param This method take Product Id as parameter
+     * @return Product
+     */
     @GetMapping(value = "/products/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable Long productId) {
         log.debug("Getting Product By Id.");
@@ -38,6 +47,11 @@ public class ProductController {
     }
 
 
+    /**
+     *
+     * @param This method take new product as parameter to store it
+     * @return return info of that new stored product
+     */
     @PostMapping(value = "/admin/products")
     public ResponseEntity<Product> saveProduct(@RequestBody Product product) {
         //product.setId(0l);
@@ -46,15 +60,16 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productDAO.save(product));
     }
 
+
+    /**
+     *
+     * @param This method take updated product info  as parameter to store it database
+     * @return updated product info
+     */
     @PutMapping(value = "/admin/products")
     public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
         log.debug("Updating Product.");
         return ResponseEntity.status(HttpStatus.OK).body(productDAO.save(product));
     }
-
-
-
-
-
 
 }

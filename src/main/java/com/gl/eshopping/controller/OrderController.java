@@ -21,9 +21,17 @@ public class OrderController {
         this.orderDAO = orderDAO;
     }
 
-    @PostMapping("/orders")
+
+    /**
+     *
+     * @param This method take order value object as parameter at the time of ordering some product
+     * @return new order
+     */
+    @PostMapping("/user/orders")
     public ResponseEntity<Order> createOrder(@RequestBody OrderVO orderVO) {
         log.debug("Creating new Order.");
         return ResponseEntity.status(HttpStatus.OK).body(orderDAO.createOrder(orderVO));
     }
+
+
 }
