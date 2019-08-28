@@ -1,6 +1,6 @@
 package com.gl.eshopping.vo;
 
-import com.gl.eshopping.model.PaymentMode;
+import com.gl.eshopping.constants.PaymentMode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,9 +13,7 @@ public class OrderVO {
     private Long customerId;
     private Long shopId;
     private List<OrderProductVO> orderProductVOS;
-
     private PaymentMode paymentMode;
-
     private LocalDateTime timestamp;
     private Double totalPrice;
 }

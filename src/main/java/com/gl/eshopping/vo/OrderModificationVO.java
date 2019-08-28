@@ -1,7 +1,7 @@
 package com.gl.eshopping.vo;
 
-import com.gl.eshopping.model.OrderStatus;
-import com.gl.eshopping.model.PaymentMode;
+import com.gl.eshopping.constants.OrderStatus;
+import com.gl.eshopping.constants.PaymentMode;
 import lombok.Getter;
 import lombok.Setter;
 
