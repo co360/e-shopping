@@ -19,7 +19,7 @@ import java.util.Set;
 public class Order extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    @JsonBackReference(value = "user-orders")
+    @JsonBackReference(value = "customer-orders")
     private Customer customer;
 
     @ManyToOne

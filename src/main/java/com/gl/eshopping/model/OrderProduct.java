@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "product_item")
+@Table(name = "order_product")
 public class OrderProduct extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
