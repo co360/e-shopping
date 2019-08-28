@@ -38,7 +38,7 @@ public class ProductController {
     }
 
 
-    @PostMapping(value = "/products")
+    @PostMapping(value = "/admin/products")
     public ResponseEntity<Product> saveProduct(@RequestBody Product product) {
         //product.setId(0l);
         log.debug("Saving Product.");
@@ -46,7 +46,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productDAO.save(product));
     }
 
-    @PutMapping(value = "/products")
+    @PutMapping(value = "/admin/products")
     public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
         log.debug("Updating Product.");
         return ResponseEntity.status(HttpStatus.OK).body(productDAO.save(product));

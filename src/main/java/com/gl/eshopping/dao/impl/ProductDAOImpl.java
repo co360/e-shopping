@@ -1,6 +1,6 @@
 package com.gl.eshopping.dao.impl;
 
-import com.gl.eshopping.exception.ProductFoundException;
+import com.gl.eshopping.exception.ProductNotFoundException;
 import com.gl.eshopping.model.Product;
 import com.gl.eshopping.repository.ProductRepository;
 import com.gl.eshopping.dao.ProductDAO;
@@ -22,36 +22,32 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public List<Product> findAll() {
-        log.debug("Getting Food Items from DAO.");
+        log.debug("Getting Products from DAO.");
         return productRepository.findAll();
     }
 
     @Override
     public Product findById(Long productId) {
-        log.debug("Getting Food Item By Id from DAO.");
-        return productRepository.findById(productId).orElseThrow(() -> new ProductFoundException(productId));
+        log.debug("Getting Product By Id from DAO.");
+        return productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(productId));
     }
 
     @Override
     public Product save(Product newProduct) {
-        log.debug("Saving Food Item from DAO.");
+        log.debug("Saving Product from DAO.");
         return productRepository.save(newProduct);
     }
 
-    public Product update(Product product, Long productId) {
-        log.debug("Updating Food Item from DAO.");
-        return null;
-    }
 
     @Override
     public void delete(Product product) {
-        log.debug("Deleting Food Item from DAO.");
+        log.debug("Deleting Product from DAO.");
         productRepository.delete(product);
     }
 
     @Override
     public void deleteById(Long productId) {
-        log.debug("Deleting Food Item By Id from DAO.");
+        log.debug("Deleting ProductBy Id from DAO.");
         productRepository.deleteById(productId);
     }
 }
