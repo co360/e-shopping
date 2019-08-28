@@ -1,13 +1,17 @@
 package com.gl.eshopping.dao.impl;
 
+import com.gl.eshopping.constants.OrderStatus;
+import com.gl.eshopping.constants.PaymentMode;
 import com.gl.eshopping.exception.DeliveryManNotFoundException;
 import com.gl.eshopping.exception.OrderNotFoundException;
+import com.gl.eshopping.exception.OrderStatusException;
+import com.gl.eshopping.exception.PaymentModeException;
 import com.gl.eshopping.model.DeliveryMan;
 import com.gl.eshopping.model.Order;
-import com.gl.eshopping.model.OrderStatus;
 import com.gl.eshopping.repository.DeliveryManRepository;
 import com.gl.eshopping.repository.OrderRepository;
 import com.gl.eshopping.dao.DeliveryManDAO;
+import com.gl.eshopping.vo.GeneralDetailVO;
 import com.gl.eshopping.vo.OrderModificationVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +50,14 @@ public class DeliveryManDAOImpl implements DeliveryManDAO {
         return deliveryManRepository.save(newDeliveryMan);
     }
 
-    public DeliveryMan update(DeliveryMan deliveryMan, Long deliveryManId) {
+    @Override
+    public DeliveryMan update(GeneralDetailVO generalDetailVO, Long deliveryManId) {
         log.debug("Updating Delivery Man from DAO");
-        return null;
+        DeliveryMan deliveryMan = findById(deliveryManId);
+        deliveryMan.setName(generalDetailVO.getName());
+        deliveryMan.setEmail(generalDetailVO.getEmail());
+        deliveryMan.setPhoneNo(generalDetailVO.getPhoneNo());
+        return deliveryManRepository.saveAndFlush(deliveryMan);
     }
 
     @Override
@@ -65,17 +74,19 @@ public class DeliveryManDAOImpl implements DeliveryManDAO {
 
     @Override
     public List<Order> getDeliveryManOrders(Long deliveryManId) {
+        log.debug("Getting all Delivery Man Order(s)");
         DeliveryMan deliveryMan = deliveryManRepository.findById(deliveryManId).orElseThrow(() -> new DeliveryManNotFoundException(deliveryManId));
         return deliveryMan.getOrders().stream().collect(Collectors.toList());
     }
 
     @Override
     public Order getDeliveryManOrderById(Long deliveryManId, Long orderId) {
+        log.debug("Getting Orders by Delivery Man Id.");
         DeliveryMan deliveryMan = findById(deliveryManId);
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
 
         if (!order.getDeliveryMan().equals(deliveryMan)) {
-            throw new IllegalArgumentException("Order does not belong to this Delivery Man.");
+            throw new OrderNotFoundException(orderId);
         }
 
         return order;
@@ -85,10 +96,17 @@ public class DeliveryManDAOImpl implements DeliveryManDAO {
     public Order modifyOrder(Long deliveryManId, Long orderId, OrderModificationVO modification) {
         Order order = getDeliveryManOrderById(deliveryManId, orderId);
 
-        if(order.getOrderStatus().getDescription().equals("picked up") && modification.getOrderStatus().getDescription().equals("delivered")) {
+        PaymentMode paymentMode = modification.getPaymentMode();
+        OrderStatus orderStatus = modification.getOrderStatus();
+
+        if (paymentMode == null) {
+            throw new PaymentModeException("Delivery Man cannot change Payment Mode.");
+        }
+
+        if (order.getOrderStatus().getDescription().equals("picked up") && orderStatus.getDescription().equals("delivered")) {
             order.setOrderStatus(OrderStatus.DELIVERED);
         } else {
-            throw new IllegalArgumentException("Delivery man cannot change status from " + order.getOrderStatus() + " to" + modification.getOrderStatus());
+            throw new OrderStatusException("Delivery man cannot change status from " + order.getOrderStatus() + " to " + modification.getOrderStatus());
         }
         return orderRepository.saveAndFlush(order);
     }

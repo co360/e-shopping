@@ -1,9 +1,7 @@
 package com.gl.eshopping.dao.impl;
 
-import com.gl.eshopping.exception.CustomerNotFoundException;
-import com.gl.eshopping.exception.ProductFoundException;
-import com.gl.eshopping.exception.OrderNotFoundException;
-import com.gl.eshopping.exception.ShopNotFoundException;
+import com.gl.eshopping.constants.OrderStatus;
+import com.gl.eshopping.exception.*;
 import com.gl.eshopping.model.*;
 import com.gl.eshopping.repository.*;
 import com.gl.eshopping.dao.OrderDAO;
@@ -11,6 +9,7 @@ import com.gl.eshopping.vo.OrderProductVO;
 import com.gl.eshopping.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -78,6 +77,32 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public Order createOrder(OrderVO orderVO) {
         log.debug("Create new order.");
+        Order order = toOrder(orderVO);
+        orderRepository.save(order);
+
+        List<OrderProduct> orderProducts = orderVO.getOrderProductVOS().stream()
+                .map(orderProductVO -> toOrderFood(orderProductVO)).collect(Collectors.toList());
+
+        Double totalPrice = 0.0;
+
+        for (OrderProduct orderProduct : orderProducts) {
+            totalPrice += orderProduct.getTotalPrice();
+        }
+
+        if (totalPrice != orderVO.getTotalPrice()) {
+            throw new PriceMismatchException("Total Price for this order should be " + totalPrice + " but found " + orderVO.getTotalPrice());
+        }
+
+        order.setTotalPrice(totalPrice);
+
+        orderProducts.forEach(orderFoodItem -> orderFoodItem.setOrder(order));
+
+
+        orderProductRepository.saveAll(orderProducts);
+        return order;
+    }
+
+    private Order toOrder(OrderVO orderVO) {
         Long customerId = orderVO.getCustomerId();
         Long shopId = orderVO.getShopId();
 
@@ -94,34 +119,29 @@ public class OrderDAOImpl implements OrderDAO {
         order.setOrderStatus(OrderStatus.APPROVED);
         order.setPaymentMode(orderVO.getPaymentMode());
         order.setTimestamp(LocalDateTime.now());
-        order.setTotalPrice(orderVO.getTotalPrice());
 
-        orderRepository.save(order);
-
-        List<OrderProduct> orderProducts = orderVO.getOrderProductVOS().stream()
-                .map(orderProductVO -> orderFoodVoConverter(orderProductVO)).collect(Collectors.toList());
-        orderProducts.forEach(orderProduct -> orderProduct.setOrder(order));
-
-        orderProductRepository.saveAll(orderProducts);
         return order;
     }
 
-    private OrderProduct orderFoodVoConverter(OrderProductVO orderProductVo) {
+    private OrderProduct toOrderFood(OrderProductVO orderProductVo) {
         log.debug("Converting orderProductVo into orderProduct");
-        OrderProduct orderProduct = new OrderProduct();
+       OrderProduct orderProduct = new OrderProduct();
         Long productId = orderProductVo.getProductId();
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductFoundException(productId));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(productId));
         orderProduct.setProduct(product);
         orderProduct.setQuantity(orderProductVo.getQuantity());
-        orderProduct.setTotalPrice(orderProductVo.getTotalPrice());
+        Double totalPrice = orderProductVo.getQuantity() * product.getPrice();
+        if (totalPrice != orderProductVo.getTotalPrice()) {
+            throw new PriceMismatchException("Total Price for " + product.getName() + " should be " + totalPrice + " but found " + orderProductVo.getTotalPrice());
+        }
+        orderProduct.setTotalPrice(totalPrice);
         return orderProduct;
     }
 
     private DeliveryMan getDeliveryMan() {
-        // TODO implement this in some non random way.
         log.debug("Getting a delivery man.");
-        List<DeliveryMan> deliveryMEN = deliveryManRepository.findAll();
+        List<DeliveryMan> deliveryMans = deliveryManRepository.findAll();
         Random random = new Random();
-        return deliveryMEN.get(random.nextInt(deliveryMEN.size()));
+        return deliveryMans.get(random.nextInt(deliveryMans.size()));
     }
 }

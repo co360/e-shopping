@@ -1,13 +1,12 @@
 package com.gl.eshopping.dao.impl;
 
-import com.gl.eshopping.exception.OrderProductFoundException;
+import com.gl.eshopping.exception.OrderProductNotFoundException;
 import com.gl.eshopping.model.OrderProduct;
 import com.gl.eshopping.repository.OrderProductRepository;
 import com.gl.eshopping.dao.OrderProductDAO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-;
 
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class OrderProductDAOImpl implements OrderProductDAO {
     @Override
     public OrderProduct findById(Long orderProductId) {
         log.debug("Getting Order Product By Id from DAO");
-        return orderProductRepository.findById(orderProductId).orElseThrow(() -> new OrderProductFoundException(orderProductId));
+        return orderProductRepository.findById(orderProductId).orElseThrow(() -> new OrderProductNotFoundException(orderProductId));
     }
 
     @Override
